@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combo Timer</title>
+    <script defer src="list.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            -webkit-app-region: drag;
+        }
+        .combo-item {
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            -webkit-app-region: no-drag;
+        }
+        .combo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            background-color: rgba(0, 100, 0, 0.3);
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .combo-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        .combo-title {
+            font-size: 14px;
+            color: #00ff00;
+            margin-left: 10px;
+            background-color: rgba(0, 255, 0, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .combo-keys {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .key-item {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .timer {
+            font-size: 20px;
+            font-family: monospace;
+            padding: 4px 12px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .drag-handle {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.5);
+            -webkit-app-region: drag;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        #comboList {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="drag-handle">Drag to move window</div>
+    <div id="comboList">
+        <!-- Combo items will be inserted here -->
+    </div>
+</body>
+</html> 
