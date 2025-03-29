@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "electron": "^35.1.2"
+    "electron": "^35.1.2",
+    "node-global-key-listener": "^0.3.0"
   },
   "devDependencies": {},
   "scripts": {
