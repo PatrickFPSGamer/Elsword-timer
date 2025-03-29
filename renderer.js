@@ -29,48 +29,67 @@ document.addEventListener('DOMContentLoaded', () => {
             : 'Press button to record combo...';
     }
 
-    // Function to handle key press
-    function handleKeyPress(event) {
-        if (!isRecording) return;
-
-        // Prevent default behavior for special keys
-        if (['Enter', 'Tab', 'Escape'].includes(event.key)) {
-            event.preventDefault();
+    // Function to handle global key press
+    function handleGlobalKeyPress(e, down) {
+        // Ignore left mouse button events
+        if (e.name === 'MOUSE LEFT') {
+            return;
         }
 
+        if (!isRecording || !down) {
+            return;
+        }
+
+        const key = e.name;
+        console.log('Renderer received key event:', {
+            key,
+            isRecording,
+            currentKeys: recordedKeys
+        });
+
         // If Enter is pressed, stop recording
-        if (event.key === 'Enter') {
+        if (key === 'ENTER') {
+            console.log('Enter pressed, stopping recording');
             stopRecording();
             return;
         }
 
         // Add the key to recorded keys if it's not already there
-        if (!recordedKeys.includes(event.key)) {
-            recordedKeys.push(event.key);
+        if (!recordedKeys.includes(key)) {
+            console.log('Adding new key:', key);
+            recordedKeys.push(key);
             updateKeyDisplay();
+        } else {
+            console.log('Key already recorded:', key);
         }
     }
 
     // Function to start recording
     function startRecording() {
+        console.log('Starting recording...');
         isRecording = true;
         recordButton.textContent = 'Stop Recording';
         recordButton.classList.add('recording');
-        keyDisplay.innerHTML = 'Press button to record combo...';
-        window.addEventListener('keydown', handleKeyPress);
+        keyDisplay.innerHTML = 'Press keys to record combo...';
+        
+        // Initialize the key listener
+        window.electronAPI.initializeKeyListener(handleGlobalKeyPress);
     }
 
     // Function to stop recording
     function stopRecording() {
+        console.log('Stopping recording. Final keys:', recordedKeys);
         isRecording = false;
         recordButton.textContent = 'Start Recording';
         recordButton.classList.remove('recording');
-        window.removeEventListener('keydown', handleKeyPress);
+        
+        // Kill the key listener when stopping recording
+        window.electronAPI.killKeyListener();
     }
 
     // Function to update combo table
     function updateComboTable(combos) {
-        console.log('Updating combo table with:', combos); // Debug log
+        console.log('Updating combo table with:', combos);
         if (!combos || combos.length === 0) {
             comboTableBody.innerHTML = '<tr><td colspan="3">No combos available</td></tr>';
             return;
@@ -91,9 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load existing combos when the page loads
     async function loadExistingCombos() {
         try {
-            console.log('Loading existing combos...'); // Debug log
+            console.log('Loading existing combos...');
             const result = await window.electronAPI.loadCombos();
-            console.log('Load result:', result); // Debug log
+            console.log('Load result:', result);
             if (result.success) {
                 updateComboTable(result.combos);
             } else {
@@ -145,15 +164,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            console.log('Saving combo:', comboData); // Debug log
-            // Save the combo using the electron API
+            console.log('Saving combo:', comboData);
             const result = await window.electronAPI.saveCombo(comboData);
-            console.log('Save result:', result); // Debug log
+            console.log('Save result:', result);
             
             if (result.success) {
-                // Reset the form
                 resetForm();
-                // Reload the combos to update the table
                 loadExistingCombos();
                 alert('Combo added successfully!');
             } else {
@@ -165,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // List button handler
     listButton.addEventListener('click', async () => {
         try {
             await window.electronAPI.openList();

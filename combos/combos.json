@@ -1,25 +1,18 @@
 [
   {
-    "name": "2x T Skill",
+    "name": "2x T",
     "title": "night_parade_of_the_white_ghost",
     "keys": [
-      ".",
-      "ArrowRight",
-      "t"
-    ]
-  },
-  {
-    "name": "test",
-    "title": "freed_shadow",
-    "keys": [
-      "Control"
+      "DOT",
+      "RIGHT ARROW",
+      "T"
     ]
   },
   {
     "name": "Awakening",
     "title": "concerto",
     "keys": [
-      "Control"
+      "LEFT CTRL"
     ]
   }
 ]

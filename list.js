@@ -1,61 +1,222 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('list.js loaded');
     const comboList = document.getElementById('comboList');
+    console.log('comboList element:', comboList);
+    
     let timers = {};
+    let currentComboKeys = [];
+
+    // Timer configuration from timerCooldown.js
+    const timerConfig = [
+        {
+            id: "night_parade_of_the_white_ghost",
+            timerCooldown: 25,
+        },
+        {
+            id: "freed_shadow",
+            timerCooldown: 60,
+            timerBuff: 40
+        },
+        {
+            id: "concerto",
+            timerCooldown: 60,
+            timerBuff: 40
+        }
+    ];
 
     // Function to format time
-    function formatTime(seconds) {
+    function formatTime(seconds, isBuff = false) {
+        if (seconds === 0) return isBuff ? 'not ready' : 'ready';
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
         return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
 
+    // Function to start timer for a combo
+    function startTimer(comboName, config) {
+        console.log(`Starting timer for ${comboName} with config:`, config);
+        
+        // Check if timer exists and is not at 0
+        if (timers[comboName]?.cooldown?.seconds > 0) {
+            console.log(`Timer for ${comboName} is still running, ignoring reset`);
+            return;
+        }
+        
+        // Reset cooldown timer
+        if (timers[comboName]?.cooldown?.interval) {
+            clearInterval(timers[comboName].cooldown.interval);
+            console.log(`Cleared existing cooldown timer for ${comboName}`);
+        }
+
+        // Reset buff timer if exists
+        if (timers[comboName]?.buff?.interval) {
+            clearInterval(timers[comboName].buff.interval);
+            console.log(`Cleared existing buff timer for ${comboName}`);
+        }
+        
+        // Initialize timers
+        timers[comboName] = {
+            cooldown: {
+                seconds: config.timerCooldown
+            }
+        };
+
+        if (config.timerBuff) {
+            timers[comboName].buff = {
+                seconds: config.timerBuff
+            };
+        }
+
+        // Create a single interval for both timers
+        const interval = setInterval(() => {
+            // Update cooldown timer
+            if (timers[comboName].cooldown.seconds > 0) {
+                timers[comboName].cooldown.seconds--;
+                const cooldownElement = document.getElementById(`cooldown-${comboName}`);
+                if (cooldownElement) {
+                    cooldownElement.textContent = formatTime(timers[comboName].cooldown.seconds);
+                    console.log(`Updated cooldown timer for ${comboName}: ${cooldownElement.textContent}`);
+                }
+            }
+
+            // Update buff timer if exists
+            if (timers[comboName].buff && timers[comboName].buff.seconds > 0) {
+                timers[comboName].buff.seconds--;
+                const buffElement = document.getElementById(`buff-${comboName}`);
+                if (buffElement) {
+                    buffElement.textContent = formatTime(timers[comboName].buff.seconds, true);
+                    console.log(`Updated buff timer for ${comboName}: ${buffElement.textContent}`);
+                }
+            }
+        }, 1000);
+
+        // Store the interval reference
+        timers[comboName].cooldown.interval = interval;
+        if (timers[comboName].buff) {
+            timers[comboName].buff.interval = interval;
+        }
+    }
+
+    // Function to handle global key press
+    function handleGlobalKeyPress(e, down) {
+        // Ignore left mouse button events
+        if (e.name === 'MOUSE LEFT') {
+            return;
+        }
+
+        if (!down) return;
+
+        const key = e.name;
+        console.log('Key pressed:', key);
+
+        // Add key to current combo
+        currentComboKeys.push(key);
+        console.log('Current combo keys:', currentComboKeys);
+
+        // Check if the current combo matches any saved combo
+        const combos = window.electronAPI.getCurrentCombos();
+        console.log('Available combos:', combos);
+        
+        // Special handling for LEFT CTRL (Awakening combo)
+        if (key === 'LEFT CTRL') {
+            const awakeningCombo = combos.find(combo => combo.name === 'Awakening');
+            if (awakeningCombo) {
+                console.log('Found Awakening combo:', awakeningCombo);
+                const config = timerConfig.find(c => c.id === 'concerto');
+                if (config) {
+                    console.log('Starting timer for Awakening with config:', config);
+                    startTimer('Awakening', config);
+                }
+                currentComboKeys = [];
+                return;
+            }
+        }
+
+        const matchingCombo = combos.find(combo => {
+            // For single key combos like LEFT CTRL, check if the key matches exactly
+            if (combo.keys.length === 1) {
+                console.log('Checking single key combo:', {
+                    comboKey: combo.keys[0],
+                    pressedKey: key,
+                    matches: combo.keys[0] === key
+                });
+                return combo.keys[0] === key;
+            }
+            // For multi-key combos, check the sequence
+            return combo.keys.every((comboKey, index) => currentComboKeys[index] === comboKey);
+        });
+
+        if (matchingCombo) {
+            console.log('Combo matched:', matchingCombo);
+            const config = timerConfig.find(c => c.id === matchingCombo.title);
+            console.log('Found timer config:', config);
+            if (config) {
+                startTimer(matchingCombo.name, config);
+            }
+            // Reset current combo
+            currentComboKeys = [];
+        } else {
+            console.log('No matching combo found');
+        }
+    }
+
     // Function to update combo list with timers
     function updateComboList(combos) {
-        console.log('Updating combo list with:', combos); // Debug log
+        console.log('Updating combo list with:', combos);
         if (!combos || combos.length === 0) {
-            console.log('No combos available'); // Debug log
+            console.log('No combos available');
             comboList.innerHTML = '<div class="combo-item">No combos available</div>';
             return;
         }
 
-        comboList.innerHTML = combos.map(combo => `
-            <div class="combo-item">
-                <div class="combo-header">
-                    <div class="combo-name">${combo.name}</div>
-                    <div class="timer" id="timer-${combo.name}">0:00</div>
-                </div>
-                <div class="combo-title">${combo.title}</div>
-                <div class="combo-keys">
-                    ${combo.keys.map(key => `<span class="key-item">${key}</span>`).join('')}
-                </div>
-            </div>
-        `).join('');
-
-        // Initialize timers for each combo
-        combos.forEach(combo => {
-            if (!timers[combo.name]) {
-                timers[combo.name] = {
-                    seconds: 0,
-                    interval: setInterval(() => {
-                        timers[combo.name].seconds++;
-                        const timerElement = document.getElementById(`timer-${combo.name}`);
-                        if (timerElement) {
-                            timerElement.textContent = formatTime(timers[combo.name].seconds);
-                        }
-                    }, 1000)
-                };
-            }
-        });
+        try {
+            comboList.innerHTML = combos.map(combo => {
+                const config = timerConfig.find(c => c.id === combo.title);
+                const hasBuff = config && config.timerBuff;
+                
+                return `
+                    <div class="combo-item">
+                        <div class="combo-header">
+                            <div class="combo-name">${combo.name}</div>
+                            <div class="timers">
+                                <div class="timer-container">
+                                    <div class="timer-label">Cooldown</div>
+                                    <div class="timer cooldown" id="cooldown-${combo.name}">ready</div>
+                                </div>
+                                ${hasBuff ? `
+                                    <div class="timer-container">
+                                        <div class="timer-label">Buff</div>
+                                        <div class="timer buff" id="buff-${combo.name}">not ready</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="combo-title">${combo.title}</div>
+                        <div class="combo-keys">
+                            ${combo.keys.map(key => `<span class="key-item">${key}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            console.log('Combo list updated successfully');
+        } catch (error) {
+            console.error('Error updating combo list:', error);
+            comboList.innerHTML = '<div class="combo-item">Error updating combo list</div>';
+        }
     }
 
     // Load existing combos
     async function loadExistingCombos() {
         try {
-            console.log('Loading existing combos...'); // Debug log
+            console.log('Loading existing combos...');
+            console.log('window.electronAPI:', window.electronAPI);
             const result = await window.electronAPI.loadCombos();
-            console.log('Load result:', result); // Debug log
+            console.log('Load result:', result);
             if (result.success) {
+                window.electronAPI.setCurrentCombos(result.combos);
                 updateComboList(result.combos);
+                // Initialize key listener after combos are loaded
+                window.electronAPI.initializeKeyListener(handleGlobalKeyPress);
             } else {
                 console.error('Failed to load combos:', result.message);
                 comboList.innerHTML = '<div class="combo-item">Error loading combos</div>';

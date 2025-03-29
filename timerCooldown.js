@@ -10,7 +10,7 @@
     },
     {
         id: "concerto",
-        timerCooldown: 30,
-        timerBuff: 45
+        timerCooldown: 60,
+        timerBuff: 40
     }
 ]
