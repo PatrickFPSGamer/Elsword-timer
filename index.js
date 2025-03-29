@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path')
 const fs = require('fs')
+const timerConfig = require('./timerCooldown.js')
 
 let mainWindow = null;
 let listWindow = null;
@@ -61,6 +62,20 @@ ipcMain.handle('load-combos', async () => {
     return { success: false, message: 'Failed to load combos' }
   }
 })
+
+ipcMain.handle('save-custom-timer', async (event, { title, cooldown, buff }) => {
+  try {
+    console.log('Saving custom timer:', { title, cooldown, buff });
+    const success = timerConfig.addCustomTimer(title, cooldown, buff);
+    if (!success) {
+      throw new Error('Failed to save custom timer configuration');
+    }
+    return { success: true, message: 'Custom timer saved successfully' };
+  } catch (error) {
+    console.error('Error saving custom timer:', error);
+    return { success: false, message: 'Failed to save custom timer' };
+  }
+});
 
 ipcMain.handle('save-combo', async (event, combo) => {
   try {

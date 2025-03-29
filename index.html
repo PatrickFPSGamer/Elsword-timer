@@ -74,13 +74,29 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="title" class="form-label">Title</label>
+                    <label for="title" class="form-label">Title / Others</label>
                     <select class="form-select" id="title">
                         <option value="">Select Title</option>
-                        <option value="freed_shadow">Freed Shadow</option>
-                        <option value="night_parade_of_the_white_ghost">Night Parade of the White-Ghost</option>
-                        <option value="concerto">Concerto</option>
+                        <option value="Freed Shadow">Freed Shadow</option>
+                        <option value="Night Parade of the White-Ghost">Night Parade of the White-Ghost</option>
+                        <option value="Concerto">Concerto</option>
+                        <option value="0">Other</option>
                     </select>
+                </div>
+
+                <div id="otherFields" style="display: none;">
+                    <div class="mb-3">
+                        <label for="otherName" class="form-label">Title Name</label>
+                        <input type="text" class="form-control" id="otherName" placeholder="Enter Title Name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cooldownTimer" class="form-label">Cooldown Timer (seconds)</label>
+                        <input type="number" class="form-control" id="cooldownTimer" placeholder="Enter Cooldown Timer">
+                    </div>
+                    <div class="mb-3">
+                        <label for="buffTimer" class="form-label">Buff Timer (seconds)</label>
+                        <input type="number" class="form-control" id="buffTimer" placeholder="Enter Buff Timer">
+                    </div>
                 </div>
                 
                 <div class="mb-3">

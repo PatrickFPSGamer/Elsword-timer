@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron')
 const { GlobalKeyboardListener } = require('node-global-key-listener')
+const timerConfig = require('./timerCooldown.js')
 
 let currentCombos = [];
 let keyListener = null;
@@ -7,6 +8,7 @@ let keyListener = null;
 contextBridge.exposeInMainWorld('electronAPI', {
     loadCombos: () => ipcRenderer.invoke('load-combos'),
     saveCombo: (combo) => ipcRenderer.invoke('save-combo', combo),
+    saveCustomTimer: (title, cooldown, buff) => ipcRenderer.invoke('save-custom-timer', { title, cooldown, buff }),
     openList: () => ipcRenderer.invoke('open-list'),
     setCurrentCombos: (combos) => {
         currentCombos = combos;
@@ -14,6 +16,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     getCurrentCombos: () => {
         return currentCombos;
+    },
+    getTimerConfig: (title) => {
+        const configs = timerConfig.getAllTimers();
+        return configs.find(c => c.id === title.toLowerCase().replace(/\s+/g, '_'));
     },
     initializeKeyListener: (callback) => {
         if (keyListener) {

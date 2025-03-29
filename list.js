@@ -6,24 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let timers = {};
     let currentComboKeys = [];
 
-    // Timer configuration from timerCooldown.js
-    const timerConfig = [
-        {
-            id: "night_parade_of_the_white_ghost",
-            timerCooldown: 25,
-        },
-        {
-            id: "freed_shadow",
-            timerCooldown: 60,
-            timerBuff: 40
-        },
-        {
-            id: "concerto",
-            timerCooldown: 60,
-            timerBuff: 40
-        }
-    ];
-
     // Function to format time
     function formatTime(seconds, isBuff = false) {
         if (seconds === 0) return isBuff ? 'not ready' : 'ready';
@@ -116,24 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check if the current combo matches any saved combo
         const combos = window.electronAPI.getCurrentCombos();
         console.log('Available combos:', combos);
-        
-        // Special handling for LEFT CTRL (Awakening combo)
-        if (key === 'LEFT CTRL') {
-            const awakeningCombo = combos.find(combo => combo.name === 'Awakening');
-            if (awakeningCombo) {
-                console.log('Found Awakening combo:', awakeningCombo);
-                const config = timerConfig.find(c => c.id === 'concerto');
-                if (config) {
-                    console.log('Starting timer for Awakening with config:', config);
-                    startTimer('Awakening', config);
-                }
-                currentComboKeys = [];
-                return;
-            }
-        }
 
+        // Check for matching combo
         const matchingCombo = combos.find(combo => {
-            // For single key combos like LEFT CTRL, check if the key matches exactly
+            // For single key combos, check if the key matches exactly
             if (combo.keys.length === 1) {
                 console.log('Checking single key combo:', {
                     comboKey: combo.keys[0],
@@ -142,13 +110,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 return combo.keys[0] === key;
             }
-            // For multi-key combos, check the sequence
-            return combo.keys.every((comboKey, index) => currentComboKeys[index] === comboKey);
+            
+            // For multi-key combos, check if the current sequence matches
+            if (currentComboKeys.length === combo.keys.length) {
+                console.log("combo:", combo);
+                
+                console.log('Checking multi-key combo:', {
+                    comboKeys: combo.keys,
+                    currentKeys: currentComboKeys,
+                    matches: combo.keys.every((comboKey, index) => currentComboKeys[index] === comboKey)
+                });
+                return combo.keys.every((comboKey, index) => currentComboKeys[index] === comboKey);
+            }
+            
+            return false;
         });
 
         if (matchingCombo) {
             console.log('Combo matched:', matchingCombo);
-            const config = timerConfig.find(c => c.id === matchingCombo.title);
+            const config = window.electronAPI.getTimerConfig(matchingCombo.title);
             console.log('Found timer config:', config);
             if (config) {
                 startTimer(matchingCombo.name, config);
@@ -156,6 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Reset current combo
             currentComboKeys = [];
         } else {
+            // If we have more keys than any combo, reset the current combo
+            const maxComboLength = Math.max(...combos.map(combo => combo.keys.length));
+            console.log(maxComboLength);
+            
+            if (currentComboKeys.length >= maxComboLength) {
+                console.log('Too many keys pressed, resetting combo');
+                currentComboKeys = [];
+            }
             console.log('No matching combo found');
         }
     }
@@ -171,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             comboList.innerHTML = combos.map(combo => {
-                const config = timerConfig.find(c => c.id === combo.title);
+                const config = window.electronAPI.getTimerConfig(combo.title);
                 const hasBuff = config && config.timerBuff;
                 
                 return `

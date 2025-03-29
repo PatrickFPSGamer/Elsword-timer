@@ -1,7 +1,14 @@
 [
   {
-    "name": "2x T",
-    "title": "night_parade_of_the_white_ghost",
+    "name": "asd",
+    "title": "asd",
+    "keys": [
+      "6"
+    ]
+  },
+  {
+    "name": "Skill T 2x",
+    "title": "Night Parade of the White-Ghost",
     "keys": [
       "DOT",
       "RIGHT ARROW",
@@ -9,10 +16,10 @@
     ]
   },
   {
-    "name": "Awakening",
-    "title": "concerto",
+    "name": "awakening",
+    "title": "Concerto",
     "keys": [
-      "LEFT CTRL"
+      "CAPS LOCK"
     ]
   }
 ]

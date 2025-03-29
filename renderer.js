@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const addButton = document.getElementById('addButton');
     const listButton = document.getElementById('listButton');
     const comboTableBody = document.getElementById('comboTableBody');
+    const otherFields = document.getElementById('otherFields');
+    const otherNameInput = document.getElementById('otherName');
+    const cooldownTimerInput = document.getElementById('cooldownTimer');
+    const buffTimerInput = document.getElementById('buffTimer');
 
     let isRecording = false;
     let recordedKeys = [];
@@ -15,12 +19,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetForm() {
         namaInput.value = '';
         titleSelect.value = '';
+        otherNameInput.value = '';
+        cooldownTimerInput.value = '';
+        buffTimerInput.value = '';
+        otherFields.style.display = 'none';
         recordedKeys = [];
         updateKeyDisplay();
         if (isRecording) {
             stopRecording();
         }
     }
+
+    // Show/hide other fields based on title selection
+    titleSelect.addEventListener('change', () => {
+        if (titleSelect.value === '0') {
+            otherFields.style.display = 'block';
+        } else {
+            otherFields.style.display = 'none';
+        }
+    });
 
     // Function to update the key display
     function updateKeyDisplay() {
@@ -156,12 +173,51 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Validate other fields if "Other" is selected
+        if (title === '0') {
+            const otherName = otherNameInput.value.trim();
+            const cooldownTimer = parseInt(cooldownTimerInput.value);
+            const buffTimer = parseInt(buffTimerInput.value);
+
+            if (!otherName) {
+                alert('Please enter a title name!');
+                return;
+            }
+            if (!cooldownTimer || cooldownTimer <= 0) {
+                alert('Please enter a valid cooldown timer!');
+                return;
+            }
+            if (!buffTimer || buffTimer <= 0) {
+                alert('Please enter a valid buff timer!');
+                return;
+            }
+        }
+
         // Prepare the combo data
         const comboData = {
             name: nama,
-            title: title,
+            title: title === '0' ? otherNameInput.value.trim() : title,
             keys: [...recordedKeys]
         };
+
+        // If this is a custom timer, save it to timerCooldown.js first
+        if (title === '0') {
+            try {
+                const success = await window.electronAPI.saveCustomTimer(
+                    otherNameInput.value.trim(),
+                    parseInt(cooldownTimerInput.value),
+                    parseInt(buffTimerInput.value)
+                );
+                
+                if (!success) {
+                    throw new Error('Failed to save custom timer configuration');
+                }
+            } catch (error) {
+                console.error('Error saving custom timer:', error);
+                alert('Failed to save custom timer configuration. Please try again.');
+                return;
+            }
+        }
 
         try {
             console.log('Saving combo:', comboData);
