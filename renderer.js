@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateComboTable(combos) {
         console.log('Updating combo table with:', combos);
         if (!combos || combos.length === 0) {
-            comboTableBody.innerHTML = '<tr><td colspan="3">No combos available</td></tr>';
+            comboTableBody.innerHTML = '<tr><td colspan="4">No combos available</td></tr>';
             return;
         }
         comboTableBody.innerHTML = combos.map(combo => `
@@ -120,8 +120,37 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${combo.keys.map(key => `<span class="key-item">${key}</span>`).join('')}
                     </div>
                 </td>
+                <td>
+                    <button class="delete-btn" data-combo='${JSON.stringify(combo)}'>Delete</button>
+                </td>
             </tr>
         `).join('');
+
+        // Add event listeners to all delete buttons
+        const deleteButtons = comboTableBody.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const combo = JSON.parse(button.dataset.combo);
+                handleDelete(combo);
+            });
+        });
+    }
+
+    // Function to handle delete
+    async function handleDelete(combo) {
+        if (confirm(`Are you sure you want to delete "${combo.name}"?`)) {
+            try {
+                const result = await window.electronAPI.deleteCombo(combo);
+                if (result.success) {
+                    loadExistingCombos();
+                } else {
+                    alert('Failed to delete combo: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error deleting combo:', error);
+                alert('Failed to delete combo. Please try again.');
+            }
+        }
     }
 
     // Load existing combos when the page loads
@@ -134,11 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateComboTable(result.combos);
             } else {
                 console.error('Failed to load combos:', result.message);
-                comboTableBody.innerHTML = '<tr><td colspan="3">Error loading combos</td></tr>';
+                comboTableBody.innerHTML = '<tr><td colspan="4">Error loading combos</td></tr>';
             }
         } catch (error) {
             console.error('Error loading combos:', error);
-            comboTableBody.innerHTML = '<tr><td colspan="3">Error loading combos</td></tr>';
+            comboTableBody.innerHTML = '<tr><td colspan="4">Error loading combos</td></tr>';
         }
     }
 
@@ -177,7 +206,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (title === '0') {
             const otherName = otherNameInput.value.trim();
             const cooldownTimer = parseInt(cooldownTimerInput.value);
-            const buffTimer = parseInt(buffTimerInput.value);
+            let buffTimer = parseInt(buffTimerInput.value);
+            console.log(buffTimer);
+            
 
             if (!otherName) {
                 alert('Please enter a title name!');
@@ -187,9 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Please enter a valid cooldown timer!');
                 return;
             }
-            if (!buffTimer || buffTimer <= 0) {
-                alert('Please enter a valid buff timer!');
-                return;
+            if (!buffTimer || buffTimer < -1) {
+                buffTimer = 0;
             }
         }
 

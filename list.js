@@ -112,16 +112,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // For multi-key combos, check if the current sequence matches
-            if (currentComboKeys.length === combo.keys.length) {
-                console.log("combo:", combo);
+            // if (currentComboKeys.length === combo.keys.length) {
+            //     console.log("combo:", combo);
                 
-                console.log('Checking multi-key combo:', {
-                    comboKeys: combo.keys,
-                    currentKeys: currentComboKeys,
-                    matches: combo.keys.every((comboKey, index) => currentComboKeys[index] === comboKey)
-                });
-                return combo.keys.every((comboKey, index) => currentComboKeys[index] === comboKey);
-            }
+            //     console.log('Checking multi-key combo:', {
+            //         comboKeys: combo.keys,
+            //         currentKeys: currentComboKeys,
+            //         matches: combo.keys.every((comboKey, index) => currentComboKeys[index] === comboKey)
+            //     });
+            //     return combo.keys.every((comboKey, index) => currentComboKeys[index] === comboKey);
+            // }
             
             return false;
         });

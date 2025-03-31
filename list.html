@@ -7,119 +7,231 @@
     <script defer src="list.js"></script>
     <style>
         body { 
-            font-family: Arial, sans-serif; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
             margin: 0;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
+            padding: 0;
+            background-color: rgba(0, 0, 0, 0.85);
             color: white;
             -webkit-app-region: drag;
-        }
-        .combo-item {
-            background-color: rgba(0, 0, 0, 0.8);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            -webkit-app-region: no-drag;
-        }
-        .combo-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            background-color: rgba(0, 100, 0, 0.3);
-            padding: 8px;
-            border-radius: 4px;
-        }
-        .combo-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffffff;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-        }
-        .combo-title {
-            font-size: 14px;
-            color: #00ff00;
-            margin-left: 10px;
-            background-color: rgba(0, 255, 0, 0.1);
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-        .combo-keys {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 10px;
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 8px;
-            border-radius: 4px;
-        }
-        .key-item {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-family: monospace;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .timers {
-            display: flex;
-            gap: 10px;
-        }
-        .timer-container {
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 4px;
         }
-        .timer-label {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.8);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .timer {
-            font-size: 20px;
-            font-family: monospace;
-            padding: 4px 12px;
-            border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            background-color: rgba(255, 255, 255, 0.1);
-            min-width: 80px;
-            text-align: center;
-        }
-        .timer.cooldown {
-            background-color: rgba(255, 0, 0, 0.2);
-            border-color: rgba(255, 0, 0, 0.5);
-        }
-        .timer.buff {
-            background-color: rgba(0, 255, 0, 0.2);
-            border-color: rgba(0, 255, 0, 0.5);
-        }
+
         .drag-handle {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: 30px;
-            background-color: rgba(0, 0, 0, 0.5);
+            height: 24px;
+            background-color: rgba(0, 0, 0, 0.7);
             -webkit-app-region: drag;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            padding: 0 8px;
             color: #ffffff;
             font-size: 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
         }
+
+        .drag-handle .title {
+            font-weight: 500;
+            color: #00ff00;
+        }
+
+        .drag-handle .controls {
+            display: flex;
+            gap: 8px;
+            -webkit-app-region: no-drag;
+        }
+
+        .control-button {
+            background: none;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 2px 6px;
+            font-size: 12px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .control-button:hover {
+            opacity: 1;
+        }
+
         #comboList {
-            margin-top: 30px;
+            margin-top: 24px;
+            padding: 6px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 6px;
+            flex: 1;
+        }
+
+        .combo-item {
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 6px;
+            padding: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            -webkit-app-region: no-drag;
+        }
+
+        .combo-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .combo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            background-color: rgba(0, 100, 0, 0.2);
+            padding: 4px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .combo-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+
+        .combo-title {
+            font-size: 12px;
+            color: #00ff00;
+            background-color: rgba(0, 255, 0, 0.1);
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin: 3px 0;
+            display: inline-block;
+        }
+
+        .combo-keys {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-top: 3px;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 3px;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .key-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-family: 'Consolas', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .timers {
+            display: flex;
+            gap: 6px;
+            margin-top: 3px;
+        }
+
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .timer-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .timer {
+            font-size: 14px;
+            font-family: 'Consolas', monospace;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.05);
+            min-width: 55px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .timer.cooldown {
+            background-color: rgba(255, 0, 0, 0.15);
+            border-color: rgba(255, 0, 0, 0.3);
+        }
+
+        .timer.cooldown:not(.ready) {
+            animation: pulse-red 1s infinite;
+        }
+
+        .timer.buff {
+            background-color: rgba(0, 255, 0, 0.15);
+            border-color: rgba(0, 255, 0, 0.3);
+        }
+
+        .timer.buff:not(.ready) {
+            animation: pulse-green 1s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 2px rgba(255, 0, 0, 0.3); }
+            50% { box-shadow: 0 0 4px rgba(255, 0, 0, 0.5); }
+            100% { box-shadow: 0 0 2px rgba(255, 0, 0, 0.3); }
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 2px rgba(0, 255, 0, 0.3); }
+            50% { box-shadow: 0 0 4px rgba(0, 255, 0, 0.5); }
+            100% { box-shadow: 0 0 2px rgba(0, 255, 0, 0.3); }
+        }
+
+        .ready {
+            background-color: rgba(0, 255, 0, 0.2) !important;
+            border-color: rgba(0, 255, 0, 0.4) !important;
+        }
+
+        @media (max-width: 600px) {
+            #comboList {
+                grid-template-columns: 1fr;
+                padding: 4px;
+            }
+
+            .combo-item {
+                padding: 4px;
+            }
+
+            .timers {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .timer {
+                font-size: 13px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="drag-handle">Drag to move window</div>
+    <div class="drag-handle">
+        <div class="title">Combo Timer</div>
+        <div class="controls">
+            <button class="control-button" onclick="window.close()">Close</button>
+        </div>
+    </div>
     <div id="comboList">
         <!-- Combo items will be inserted here -->
     </div>

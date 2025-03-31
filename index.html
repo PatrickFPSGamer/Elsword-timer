@@ -57,6 +57,18 @@
             flex-wrap: wrap;
             gap: 5px;
         }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
     </style>
 </head>
 <body>
@@ -78,7 +90,6 @@
                     <select class="form-select" id="title">
                         <option value="">Select Title</option>
                         <option value="Freed Shadow">Freed Shadow</option>
-                        <option value="Night Parade of the White-Ghost">Night Parade of the White-Ghost</option>
                         <option value="Concerto">Concerto</option>
                         <option value="0">Other</option>
                     </select>
@@ -86,8 +97,8 @@
 
                 <div id="otherFields" style="display: none;">
                     <div class="mb-3">
-                        <label for="otherName" class="form-label">Title Name</label>
-                        <input type="text" class="form-control" id="otherName" placeholder="Enter Title Name">
+                        <label for="otherName" class="form-label">Title / Others</label>
+                        <input type="text" class="form-control" id="otherName" placeholder="Enter Title / Others name">
                     </div>
                     <div class="mb-3">
                         <label for="cooldownTimer" class="form-label">Cooldown Timer (seconds)</label>
@@ -100,7 +111,7 @@
                 </div>
                 
                 <div class="mb-3">
-                    <label class="form-label">Key Combo</label>
+                    <label class="form-label">Key Combo (For now it only can record 1 key)</label>
                     <div class="key-display" id="keyDisplay">
                         Press button to record combo...
                     </div>
@@ -120,8 +131,9 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Title</th>
+                                <th>Title / Buff</th>
                                 <th>Keys</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="comboTableBody">

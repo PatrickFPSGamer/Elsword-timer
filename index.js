@@ -50,6 +50,20 @@ function saveCombos(combos) {
   }
 }
 
+// Function to delete timer config
+function deleteTimerConfig(title) {
+  try {
+    const configs = timerConfig.getAllTimers();
+    const filteredConfigs = configs.filter(config => 
+      config.id !== title.toLowerCase().replace(/\s+/g, '_')
+    );
+    return timerConfig.saveConfig(filteredConfigs);
+  } catch (error) {
+    console.error('Error deleting timer config:', error);
+    return false;
+  }
+}
+
 // Register IPC handlers
 ipcMain.handle('load-combos', async () => {
   try {
@@ -74,6 +88,28 @@ ipcMain.handle('save-custom-timer', async (event, { title, cooldown, buff }) => 
   } catch (error) {
     console.error('Error saving custom timer:', error);
     return { success: false, message: 'Failed to save custom timer' };
+  }
+});
+
+ipcMain.handle('delete-combo', async (event, combo) => {
+  try {
+    console.log('Deleting combo:', combo);
+    const combos = readCombos();
+    const filteredCombos = combos.filter(c => c.name !== combo.name);
+    saveCombos(filteredCombos);
+
+    // If this is a custom timer, also delete it from timerCooldown.json
+    if (combo.title !== 'Freed Shadow' && combo.title !== 'Concerto') {
+      const success = timerConfig.deleteTimerConfig(combo.title);
+      if (!success) {
+        console.warn('Failed to delete timer config for:', combo.title);
+      }
+    }
+
+    return { success: true, message: 'Combo deleted successfully' };
+  } catch (error) {
+    console.error('Error deleting combo:', error);
+    return { success: false, message: 'Failed to delete combo' };
   }
 });
 
@@ -112,8 +148,8 @@ ipcMain.handle('open-list', async () => {
 
     await listWindow.loadFile('list.html')
     
-    // Open DevTools for debugging
-    listWindow.webContents.openDevTools();
+    // Remove DevTools opening
+    // listWindow.webContents.openDevTools();
     
     listWindow.on('closed', () => {
       listWindow = null
@@ -140,8 +176,8 @@ const createWindow = () => {
 
   mainWindow.loadFile('index.html')
   
-  // Open DevTools for debugging
-  mainWindow.webContents.openDevTools();
+  // Remove DevTools opening
+  // mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {

@@ -12,10 +12,5 @@
     "id": "concerto",
     "timerCooldown": 60,
     "timerBuff": 40
-  },
-  {
-    "id": "asd",
-    "timerCooldown": 30,
-    "timerBuff": 20
   }
 ]

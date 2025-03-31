@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     loadCombos: () => ipcRenderer.invoke('load-combos'),
     saveCombo: (combo) => ipcRenderer.invoke('save-combo', combo),
     saveCustomTimer: (title, cooldown, buff) => ipcRenderer.invoke('save-custom-timer', { title, cooldown, buff }),
+    deleteCombo: (combo) => ipcRenderer.invoke('delete-combo', combo),
     openList: () => ipcRenderer.invoke('open-list'),
     setCurrentCombos: (combos) => {
         currentCombos = combos;

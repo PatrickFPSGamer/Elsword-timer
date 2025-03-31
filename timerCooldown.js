@@ -67,6 +67,22 @@ function addCustomTimer(title, cooldown, buff) {
     return saveConfig(config);
 }
 
+// Function to delete timer config
+function deleteTimerConfig(title) {
+    try {
+        const config = readConfig();
+        console.log(config);
+        
+        const filteredConfig = config.filter(c => 
+            c.id !== title.toLowerCase().replace(/\s+/g, '_')
+        );
+        return saveConfig(filteredConfig);
+    } catch (error) {
+        console.error('Error deleting timer config:', error);
+        return false;
+    }
+}
+
 // Function to get all timer configurations
 function getAllTimers() {
     return readConfig();
@@ -74,5 +90,6 @@ function getAllTimers() {
 
 module.exports = {
     addCustomTimer,
-    getAllTimers
+    getAllTimers,
+    deleteTimerConfig
 };
