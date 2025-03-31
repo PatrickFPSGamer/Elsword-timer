@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveCustomTimer: (title, cooldown, buff) => ipcRenderer.invoke('save-custom-timer', { title, cooldown, buff }),
     deleteCombo: (combo) => ipcRenderer.invoke('delete-combo', combo),
     openList: () => ipcRenderer.invoke('open-list'),
+    focusWindow: () => ipcRenderer.invoke('focus-window'),
     setCurrentCombos: (combos) => {
         currentCombos = combos;
         console.log('Current combos set:', currentCombos);

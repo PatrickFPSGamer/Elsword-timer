@@ -77,6 +77,19 @@ ipcMain.handle('load-combos', async () => {
   }
 })
 
+ipcMain.handle('focus-window', async () => {
+  try {
+    if (mainWindow) {
+      mainWindow.focus();
+      return { success: true };
+    }
+    return { success: false, message: 'Main window not found' };
+  } catch (error) {
+    console.error('Error focusing window:', error);
+    return { success: false, message: 'Failed to focus window' };
+  }
+});
+
 ipcMain.handle('save-custom-timer', async (event, { title, cooldown, buff }) => {
   try {
     console.log('Saving custom timer:', { title, cooldown, buff });
@@ -176,8 +189,11 @@ const createWindow = () => {
 
   mainWindow.loadFile('index.html')
   
-  // Remove DevTools opening
-  // mainWindow.webContents.openDevTools();
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
 }
 
 app.whenReady().then(() => {

@@ -207,8 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const otherName = otherNameInput.value.trim();
             const cooldownTimer = parseInt(cooldownTimerInput.value);
             let buffTimer = parseInt(buffTimerInput.value);
-            console.log(buffTimer);
-            
+            console.log("Other fields:", { otherName, cooldownTimer, buffTimer });
 
             if (!otherName) {
                 alert('Please enter a title name!');
@@ -255,9 +254,23 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Save result:', result);
             
             if (result.success) {
-                resetForm();
-                loadExistingCombos();
                 alert('Combo added successfully!');
+                console.log("Reloading page...");
+                // Try multiple reload methods
+                try {
+                    window.location.reload(true);
+                    // Focus the window after reload
+                    setTimeout(() => {
+                        window.electronAPI.focusWindow();
+                    }, 100);
+                } catch (e) {
+                    console.log("First reload method failed, trying alternative...");
+                    window.location.href = window.location.href;
+                    // Focus the window after reload
+                    setTimeout(() => {
+                        window.electronAPI.focusWindow();
+                    }, 100);
+                }
             } else {
                 alert('Failed to save combo: ' + result.message);
             }

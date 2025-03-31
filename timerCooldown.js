@@ -38,7 +38,6 @@ function readConfig() {
         }
         return defaultConfig;
     } catch (error) {
-        console.error('Error reading timer config:', error);
         return defaultConfig;
     }
 }
@@ -50,7 +49,6 @@ function saveConfig(config) {
         fs.writeFileSync(filePath, JSON.stringify(config, null, 2));
         return true;
     } catch (error) {
-        console.error('Error saving timer config:', error);
         return false;
     }
 }
@@ -71,14 +69,11 @@ function addCustomTimer(title, cooldown, buff) {
 function deleteTimerConfig(title) {
     try {
         const config = readConfig();
-        console.log(config);
-        
         const filteredConfig = config.filter(c => 
             c.id !== title.toLowerCase().replace(/\s+/g, '_')
         );
         return saveConfig(filteredConfig);
     } catch (error) {
-        console.error('Error deleting timer config:', error);
         return false;
     }
 }

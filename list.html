@@ -10,7 +10,7 @@
             font-family: 'Segoe UI', Arial, sans-serif; 
             margin: 0;
             padding: 0;
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.5);
             color: white;
             -webkit-app-region: drag;
             min-height: 100vh;
@@ -24,7 +24,7 @@
             left: 0;
             right: 0;
             height: 24px;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.5);
             -webkit-app-region: drag;
             display: flex;
             align-items: center;
@@ -69,10 +69,11 @@
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 6px;
             flex: 1;
+            margin-bottom: 40px;
         }
 
         .combo-item {
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.4);
             border-radius: 6px;
             padding: 6px;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -223,6 +224,23 @@
                 font-size: 13px;
             }
         }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 8px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+        }
+
+        .footer-content {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -235,5 +253,10 @@
     <div id="comboList">
         <!-- Combo items will be inserted here -->
     </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <span>Powered by PatrickFPSGamer / L0IiL0VER</span>
+        </div>
+    </footer>
 </body>
 </html> 
