@@ -14,30 +14,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to start timer for a combo
     function startTimer(comboName, config) {
+        // Convert title to id format for consistency
+        const titleId = config.id;
+        
         // Check if timer exists and is not at 0
-        if (timers[comboName]?.cooldown?.seconds > 0) {
+        if (timers[titleId]?.cooldown?.seconds > 0) {
             return;
         }
         
         // Reset cooldown timer
-        if (timers[comboName]?.cooldown?.interval) {
-            clearInterval(timers[comboName].cooldown.interval);
+        if (timers[titleId]?.cooldown?.interval) {
+            clearInterval(timers[titleId].cooldown.interval);
         }
 
         // Reset buff timer if exists
-        if (timers[comboName]?.buff?.interval) {
-            clearInterval(timers[comboName].buff.interval);
+        if (timers[titleId]?.buff?.interval) {
+            clearInterval(timers[titleId].buff.interval);
         }
         
         // Initialize timers
-        timers[comboName] = {
+        timers[titleId] = {
             cooldown: {
                 seconds: config.timerCooldown
             }
         };
 
         if (config.timerBuff) {
-            timers[comboName].buff = {
+            timers[titleId].buff = {
                 seconds: config.timerBuff
             };
         }
@@ -45,29 +48,68 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create a single interval for both timers
         const interval = setInterval(() => {
             // Update cooldown timer
-            if (timers[comboName].cooldown.seconds > 0) {
-                timers[comboName].cooldown.seconds--;
-                const cooldownElement = document.getElementById(`cooldown-${comboName}`);
-                if (cooldownElement) {
-                    cooldownElement.textContent = formatTime(timers[comboName].cooldown.seconds);
-                }
+            if (timers[titleId].cooldown.seconds > 0) {
+                timers[titleId].cooldown.seconds--;
+                // Update all combos with this title
+                const combos = window.electronAPI.getCurrentCombos();
+                combos.forEach(combo => {
+                    const comboConfig = window.electronAPI.getTimerConfig(combo.title);
+                    if (comboConfig && comboConfig.id === titleId) {
+                        const cooldownElement = document.getElementById(`cooldown-${combo.name}`);
+                        if (cooldownElement) {
+                            cooldownElement.textContent = formatTime(timers[titleId].cooldown.seconds);
+                        }
+                    }
+                });
             }
 
             // Update buff timer if exists
-            if (timers[comboName].buff && timers[comboName].buff.seconds > 0) {
-                timers[comboName].buff.seconds--;
-                const buffElement = document.getElementById(`buff-${comboName}`);
-                if (buffElement) {
-                    buffElement.textContent = formatTime(timers[comboName].buff.seconds, true);
-                }
+            if (timers[titleId].buff && timers[titleId].buff.seconds > 0) {
+                timers[titleId].buff.seconds--;
+                // Update all combos with this title
+                const combos = window.electronAPI.getCurrentCombos();
+                combos.forEach(combo => {
+                    const comboConfig = window.electronAPI.getTimerConfig(combo.title);
+                    if (comboConfig && comboConfig.id === titleId) {
+                        const buffElement = document.getElementById(`buff-${combo.name}`);
+                        if (buffElement) {
+                            buffElement.textContent = formatTime(timers[titleId].buff.seconds, true);
+                        }
+                    }
+                });
             }
         }, 1000);
 
         // Store the interval reference
-        timers[comboName].cooldown.interval = interval;
-        if (timers[comboName].buff) {
-            timers[comboName].buff.interval = interval;
+        timers[titleId].cooldown.interval = interval;
+        if (timers[titleId].buff) {
+            timers[titleId].buff.interval = interval;
         }
+    }
+
+    // Function to reset all timers
+    function resetAllTimers() {
+        // Clear all intervals
+        Object.values(timers).forEach(timer => {
+            if (timer.cooldown?.interval) {
+                clearInterval(timer.cooldown.interval);
+            }
+            if (timer.buff?.interval) {
+                clearInterval(timer.buff.interval);
+            }
+        });
+
+        // Reset all timer displays
+        const combos = window.electronAPI.getCurrentCombos();
+        combos.forEach(combo => {
+            const cooldownElement = document.getElementById(`cooldown-${combo.name}`);
+            const buffElement = document.getElementById(`buff-${combo.name}`);
+            if (cooldownElement) cooldownElement.textContent = 'ready';
+            if (buffElement) buffElement.textContent = 'not ready';
+        });
+
+        // Clear timers object
+        timers = {};
     }
 
     // Function to handle global key press
@@ -80,6 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!down) return;
 
         const key = e.name;
+        
+        // Check for Del key to reset all timers
+        if (key === 'DELETE') {
+            resetAllTimers();
+            return;
+        }
         
         // Add the key to current combo if it's not already there
         if (!currentComboKeys.includes(key)) {
