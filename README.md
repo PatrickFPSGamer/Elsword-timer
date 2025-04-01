@@ -1,15 +1,44 @@
-# Elsword
-# Note :
-# - Program only can read 1 input for now (In case you want track night parade cooldown with some skill, ex. press title slot -> choose title -> press skill), you cant make anything like this for now.
- 
-# Make sure your PC / Laptop have Node installed.
-# For Node version minimum is 16, Can download from here https://nodejs.org/en/download
-# Make sure you have node installed at your system. If you wonder is it installed yet or not, you can open Command Prompt and type node -v or node --version. The output if the node is installed is like this
-# V16.14.0
-# ^ it depends on which node version you installed before
-# If you are wondering if this program need Code Editor Software (Ex. Visual Studio Code), the answer is no
-# After making sure node is installed, you just need open the start.bat and MUST with open with administrator. Otherwise the timer will not working.
-# After you press add, theres a bug where you cant press any field at form, u can solve it with press "alt" button first and press the field again or just force reload it at view bar or shortcut ctrl + shift + r
-# Press View List button for the timer
-# You can customize width and height
-# Make sure you are not running your Elsword with Full View resolution
+# Elsword Timer
+
+## ⚠️ Important Notes
+- Currently, the program can only process **one input at a time**. For example, you **cannot** track the "Night Parade" cooldown alongside a skill by selecting a title and then a skill.
+
+## 🛠 Prerequisites
+### Install Node.js
+Ensure that your PC or laptop has **Node.js** installed.
+- **Minimum required version:** 16
+- Download from: [Node.js Official Website](https://nodejs.org/en/download)
+
+To check if Node.js is installed, open **Command Prompt** and type:
+```sh
+node -v
+```
+OR
+```sh
+node --version
+```
+If installed correctly, you will see an output like:
+```sh
+v16.14.0
+```
+*(Version number may vary based on your installation.)*
+
+### Code Editor Requirement
+- **No** code editor (e.g., Visual Studio Code) is required to run this program.
+
+## 🚀 Getting Started
+1. Ensure Node.js is installed.
+2. **Run `start.bat` as Administrator** (Right-click → Run as Administrator).
+   - If not run as Administrator, the timer **will not function** properly.
+
+## 🛠 Troubleshooting
+- **Cannot interact with form fields after pressing 'Add' button?**
+  - Press the `Alt` key and click the field again.
+  - OR use **force reload** via `View Bar` or press `Ctrl + Shift + R`.
+- **Want to view active timers?**
+  - Press the `View List` button.
+
+## 🖥 UI Customization
+- You can **customize the width and height** of the program window.
+- Ensure that **Elsword is NOT running in Fullscreen mode** to avoid display issues.
+
