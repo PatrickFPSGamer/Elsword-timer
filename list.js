@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const comboList = document.getElementById('comboList');
     let timers = {};
     let currentComboKeys = [];
+    let keyTimeout;
 
     // Function to format time
     function formatTime(seconds, isBuff = false) {
@@ -79,18 +80,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!down) return;
 
         const key = e.name;
-        currentComboKeys.push(key);
+        
+        // Add the key to current combo if it's not already there
+        if (!currentComboKeys.includes(key)) {
+            currentComboKeys.push(key);
+        }
 
-        // Check if the current combo matches any saved combo
+        // Immediately check for matching combos
         const combos = window.electronAPI.getCurrentCombos();
-
-        // Find all matching combos instead of just the first one
+        
+        // Find matching combos
         const matchingCombos = combos.filter(combo => {
-            // For single key combos, check if the key matches exactly
-            if (combo.keys.length === 1) {
-                return combo.keys[0] === key;
-            }
-            return false;
+            // Check if the current keys match the combo keys exactly
+            return currentComboKeys.length === combo.keys.length && 
+                   currentComboKeys.every((key, index) => key === combo.keys[index]);
         });
 
         if (matchingCombos.length > 0) {
@@ -101,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     startTimer(combo.name, config);
                 }
             });
-            // Reset current combo
+            // Reset current combo after matching
             currentComboKeys = [];
         } else {
             // If we have more keys than any combo, reset the current combo
