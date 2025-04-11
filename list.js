@@ -16,12 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function startTimer(comboName, config) {
         // Convert title to id format for consistency
         const titleId = config.id;
-        
+
         // Check if timer exists and is not at 0
         if (timers[titleId]?.cooldown?.seconds > 0) {
             return;
         }
-        
+
         // Reset cooldown timer
         if (timers[titleId]?.cooldown?.interval) {
             clearInterval(timers[titleId].cooldown.interval);
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (timers[titleId]?.buff?.interval) {
             clearInterval(timers[titleId].buff.interval);
         }
-        
+
         // Initialize timers
         timers[titleId] = {
             cooldown: {
@@ -122,26 +122,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!down) return;
 
         const key = e.name;
-        
+
         // Check for Del key to reset all timers
         if (key === 'DELETE') {
             resetAllTimers();
             return;
         }
-        
+
         // Add the key to current combo if it's not already there
         if (!currentComboKeys.includes(key)) {
             currentComboKeys.push(key);
         }
+        console.log(currentComboKeys);
+
 
         // Immediately check for matching combos
         const combos = window.electronAPI.getCurrentCombos();
-        
+
         // Find matching combos
         const matchingCombos = combos.filter(combo => {
             // Check if the current keys match the combo keys exactly
-            return currentComboKeys.length === combo.keys.length && 
-                   currentComboKeys.every((key, index) => key === combo.keys[index]);
+            return currentComboKeys.length === combo.keys.length &&
+                currentComboKeys.every((key, index) => key === combo.keys[index]);
         });
 
         if (matchingCombos.length > 0) {
@@ -161,6 +163,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentComboKeys = [];
             }
         }
+
+        // Delay reset if no input for 0.5 seconds
+        clearTimeout(keyTimeout);
+        keyTimeout = setTimeout(() => {
+            currentComboKeys = [];
+        }, 700);
     }
 
     // Function to update combo list with timers
@@ -174,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
             comboList.innerHTML = combos.map(combo => {
                 const config = window.electronAPI.getTimerConfig(combo.title);
                 const hasBuff = config && config.timerBuff;
-                
+
                 return `
                     <div class="combo-item">
                         <div class="combo-header">
@@ -223,4 +231,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load combos when the page loads
     loadExistingCombos();
-}); 
+});
