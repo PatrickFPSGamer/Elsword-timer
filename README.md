@@ -1,8 +1,5 @@
 # Elsword Timer
 
-## ⚠️ Important Notes
-- Currently, the program can only process **one input at a time**. For example, you **cannot** track the "Night Parade" cooldown alongside a skill by selecting a title and then a skill.
-
 ## 🛠 Prerequisites
 ### Install Node.js
 Ensure that your PC or laptop has **Node.js** installed.
