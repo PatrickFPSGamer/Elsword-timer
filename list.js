@@ -200,10 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 ` : ''}
                             </div>
                         </div>
-                        <div class="combo-title">${combo.title}</div>
-                        <div class="combo-keys">
-                            ${combo.keys.map(key => `<span class="key-item">${key}</span>`).join('')}
-                        </div>
                     </div>
                 `;
             }).join('');
