@@ -3,6 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let timers = {};
     let currentComboKeys = [];
     let keyTimeout;
+    let draggedItem = null;
+    let initialX = 0;
+    let initialY = 0;
+    let currentX = 0;
+    let currentY = 0;
 
     // Function to format time
     function formatTime(seconds, isBuff = false) {
@@ -50,20 +55,32 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update cooldown timer
             if (timers[titleId].cooldown.seconds > 0) {
                 timers[titleId].cooldown.seconds--;
-                // Update all combos with this title
                 const cooldownElement = document.getElementById(`cooldown-${title}`);
                 if (cooldownElement) {
-                    cooldownElement.textContent = formatTime(timers[titleId].cooldown.seconds);
+                    cooldownElement.textContent = `${timers[titleId].cooldown.seconds}s`;
+                    cooldownElement.className = 'status-value off';
+                }
+            } else {
+                const cooldownElement = document.getElementById(`cooldown-${title}`);
+                if (cooldownElement) {
+                    cooldownElement.textContent = 'READY';
+                    cooldownElement.className = 'status-value on';
                 }
             }
 
             // Update buff timer if exists
             if (timers[titleId].buff && timers[titleId].buff.seconds > 0) {
                 timers[titleId].buff.seconds--;
-                // Update all combos with this title
                 const buffElement = document.getElementById(`buff-${title}`);
                 if (buffElement) {
-                    buffElement.textContent = formatTime(timers[titleId].buff.seconds, true);
+                    buffElement.textContent = `${timers[titleId].buff.seconds}s`;
+                    buffElement.className = 'status-value off';
+                }
+            } else if (timers[titleId].buff) {
+                const buffElement = document.getElementById(`buff-${title}`);
+                if (buffElement) {
+                    buffElement.textContent = 'NOT READY';
+                    buffElement.className = 'status-value on';
                 }
             }
         }, 1000);
@@ -89,11 +106,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Reset all timer displays
         const combos = window.electronAPI.getCurrentCombos();
-        combos.forEach(combo => {
-            const cooldownElement = document.getElementById(`cooldown-${combo.name}`);
-            const buffElement = document.getElementById(`buff-${combo.name}`);
-            if (cooldownElement) cooldownElement.textContent = 'ready';
-            if (buffElement) buffElement.textContent = 'not ready';
+        const uniqueTitles = [...new Set(combos.map(combo => combo.title))];
+        
+        uniqueTitles.forEach(title => {
+            const config = window.electronAPI.getTimerConfig(title);
+            if (config) {
+                // Reset cooldown timer
+                const cooldownElement = document.getElementById(`cooldown-${title}`);
+                if (cooldownElement) {
+                    cooldownElement.textContent = 'READY';
+                    cooldownElement.className = 'status-value on';
+                }
+
+                // Reset buff timer if exists
+                if (config.timerBuff) {
+                    const buffElement = document.getElementById(`buff-${title}`);
+                    if (buffElement) {
+                        buffElement.textContent = 'READY';
+                        buffElement.className = 'status-value on';
+                    }
+                }
+            }
         });
 
         // Clear timers object
@@ -158,8 +191,59 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(keyTimeout);
         keyTimeout = setTimeout(() => {
             currentComboKeys = [];
-        }, 700);
+        }, 350);
     }
+
+    // Function to handle mouse down event
+    function handleMouseDown(e) {
+        if (e.target.closest('.combo-item')) {
+            draggedItem = e.target.closest('.combo-item');
+            draggedItem.classList.add('dragging');
+            
+            // Get initial position
+            const rect = draggedItem.getBoundingClientRect();
+            initialX = e.clientX - rect.left;
+            initialY = e.clientY - rect.top;
+            
+            // Set initial position
+            currentX = rect.left;
+            currentY = rect.top;
+            
+            // Add event listeners for dragging
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+    }
+
+    // Function to handle mouse move event
+    function handleMouseMove(e) {
+        if (draggedItem) {
+            e.preventDefault();
+            
+            // Calculate new position
+            const newX = e.clientX - initialX;
+            const newY = e.clientY - initialY;
+            
+            // Update position
+            draggedItem.style.left = `${newX}px`;
+            draggedItem.style.top = `${newY}px`;
+        }
+    }
+
+    // Function to handle mouse up event
+    function handleMouseUp() {
+        if (draggedItem) {
+            draggedItem.classList.remove('dragging');
+            draggedItem = null;
+            
+            // Remove event listeners
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+    }
+
+    // Add mouse down event listener to combo list
+    comboList.addEventListener('mousedown', handleMouseDown);
 
     // Function to update combo list with timers
     function updateComboList(combos) {
@@ -172,37 +256,35 @@ document.addEventListener('DOMContentLoaded', () => {
             // Group combos by title
             const groupedCombos = combos.reduce((acc, combo) => {
                 if (!acc[combo.title]) {
-                    acc[combo.title] = [];
+                    acc[combo.title] = {
+                        image: combo.image,
+                        config: window.electronAPI.getTimerConfig(combo.title)
+                    };
                 }
-                acc[combo.title].push(combo);
                 return acc;
             }, {});
 
             // Create HTML for each title group
-            comboList.innerHTML = Object.entries(groupedCombos).map(([title, titleCombos]) => {
-                const config = window.electronAPI.getTimerConfig(title);
+            comboList.innerHTML = Object.entries(groupedCombos).map(([title, data], index) => {
+                const config = data.config;
                 const hasBuff = config && config.timerBuff;
-                const comboKeys = titleCombos.map(combo => combo.keys).flat();
 
                 return `
-                    <div class="combo-item">
+                    <div class="combo-item" style="left: 0; top: ${index * 60}px;">
                         <div class="combo-header">
-                            <div class="combo-name">${title}</div>
-                            <div class="timers">
-                                <div class="timer-container">
-                                    <div class="timer-label">Cooldown</div>
-                                    <div class="timer cooldown" id="cooldown-${title}">ready</div>
+                            ${data.image ? `<img src="${data.image}" alt="${title}" class="title-image">` : ''}
+                            <div class="status-container">
+                                <div class="status-item">
+                                    <span class="status-label">CD:</span>
+                                    <span class="status-value on" id="cooldown-${title}">READY</span>
                                 </div>
                                 ${hasBuff ? `
-                                    <div class="timer-container">
-                                        <div class="timer-label">Buff</div>
-                                        <div class="timer buff" id="buff-${title}">not ready</div>
+                                    <div class="status-item">
+                                        <span class="status-label">Buff:</span>
+                                        <span class="status-value on" id="buff-${title}">READY</span>
                                     </div>
                                 ` : ''}
                             </div>
-                        </div>
-                        <div class="combo-keys">
-                            ${comboKeys.map(key => `<span class="key-item">${key}</span>`).join('')}
                         </div>
                     </div>
                 `;

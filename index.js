@@ -185,6 +185,8 @@ ipcMain.handle('open-list', async () => {
       frame: false,
       transparent: true,
       alwaysOnTop: true,
+      focusable: false,
+      skipTaskbar: true,
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: true,
@@ -192,6 +194,11 @@ ipcMain.handle('open-list', async () => {
       }
     })
 
+    // Set additional window properties
+    listWindow.setAlwaysOnTop(true, 'screen-saver');
+    listWindow.setVisibleOnAllWorkspaces(true);
+    listWindow.setFullScreenable(false);
+    
     await listWindow.loadFile('list.html')
     
     // Remove DevTools opening

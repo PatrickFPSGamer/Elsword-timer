@@ -66,180 +66,124 @@
             margin-top: 20px;
             padding: 4px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 4px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
             flex: 1;
             margin-bottom: 20px;
+            position: relative;
+            height: calc(100vh - 24px); /* Fixed height */
+            overflow: hidden; /* Hide scrollbars by default */
         }
 
         .combo-item {
             background-color: rgba(0, 0, 0, 0.4);
             border-radius: 4px;
-            padding: 3px;
+            padding: 8px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s, box-shadow 0.2s;
             -webkit-app-region: no-drag;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            z-index: 1;
+            width: 200px;
         }
 
-        .combo-item:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        .combo-item.dragging {
+            opacity: 0.5;
+            z-index: 1000;
         }
 
         .combo-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 2px;
-            background-color: rgba(0, 100, 0, 0.2);
-            padding: 2px 3px;
-            border-radius: 3px;
-            border: 1px solid rgba(0, 255, 0, 0.2);
+            gap: 8px;
+            -webkit-app-region: no-drag;
         }
 
-        .combo-name {
-            font-size: 11px;
-            font-weight: 600;
-            color: #ffffff;
-            text-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
-        }
-
-        .combo-title {
-            font-size: 10px;
-            color: #00ff00;
-            background-color: rgba(0, 255, 0, 0.1);
-            padding: 1px 2px;
-            border-radius: 2px;
-            margin: 1px 0;
-            display: inline-block;
-        }
-
-        .combo-keys {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 3px;
-            margin-top: 3px;
-            background-color: rgba(255, 255, 255, 0.05);
-            padding: 3px;
-            border-radius: 3px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .key-item {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 12px;
-            font-family: 'Consolas', monospace;
+        .title-image {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
         }
 
-        .timers {
+        .status-container {
             display: flex;
-            gap: 3px;
-            margin-top: 2px;
-        }
-
-        .timer-container {
-            display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            gap: 4px;
+            flex: 1;
             align-items: center;
-            gap: 1px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            font-size: 12px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            background-color: rgba(255, 255, 255, 0.05);
             flex: 1;
         }
 
-        .timer-label {
-            font-size: 8px;
+        .status-label {
+            font-weight: 600;
             color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-right: 2px;
         }
 
-        .timer {
-            font-size: 11px;
+        .status-value {
             font-family: 'Consolas', monospace;
-            padding: 1px 2px;
-            border-radius: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            background-color: rgba(255, 255, 255, 0.05);
             min-width: 40px;
-            text-align: center;
-            transition: all 0.3s ease;
+            text-align: right;
         }
 
-        .timer.cooldown {
-            background-color: rgba(255, 0, 0, 0.15);
-            border-color: rgba(255, 0, 0, 0.3);
+        .status-value.on {
+            color: #00ff00;
         }
 
-        .timer.cooldown:not(.ready) {
-            animation: pulse-red 1s infinite;
-        }
-
-        .timer.buff {
-            background-color: rgba(0, 255, 0, 0.15);
-            border-color: rgba(0, 255, 0, 0.3);
-        }
-
-        .timer.buff:not(.ready) {
-            animation: pulse-green 1s infinite;
-        }
-
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 2px rgba(255, 0, 0, 0.3); }
-            50% { box-shadow: 0 0 4px rgba(255, 0, 0, 0.5); }
-            100% { box-shadow: 0 0 2px rgba(255, 0, 0, 0.3); }
-        }
-
-        @keyframes pulse-green {
-            0% { box-shadow: 0 0 2px rgba(0, 255, 0, 0.3); }
-            50% { box-shadow: 0 0 4px rgba(0, 255, 0, 0.5); }
-            100% { box-shadow: 0 0 2px rgba(0, 255, 0, 0.3); }
-        }
-
-        .ready {
-            background-color: rgba(0, 255, 0, 0.2) !important;
-            border-color: rgba(0, 255, 0, 0.4) !important;
+        .status-value.off {
+            color: #ff0000;
         }
 
         @media (max-width: 600px) {
             #comboList {
                 grid-template-columns: 1fr;
-                padding: 4px;
+                padding: 8px;
             }
 
             .combo-item {
-                padding: 4px;
-            }
-
-            .timers {
-                flex-direction: column;
-                gap: 3px;
-            }
-
-            .timer {
-                font-size: 13px;
+                padding: 12px;
             }
         }
 
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 8px;
-            text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 1000;
+        /* Add scrollbar styling only when needed */
+        #comboList:hover {
+            overflow-y: auto;
         }
 
-        .footer-content {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
+        /* Custom scrollbar styling */
+        #comboList::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #comboList::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        #comboList::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        #comboList::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
