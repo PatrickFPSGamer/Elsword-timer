@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(keyTimeout);
         keyTimeout = setTimeout(() => {
             currentComboKeys = [];
-        }, 350);
+        }, 500);
     }
 
     // Function to handle mouse down event
