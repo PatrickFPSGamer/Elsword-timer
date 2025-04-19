@@ -64,6 +64,32 @@ function deleteTimerConfig(title) {
   }
 }
 
+// Function to get the assets directory path
+function getAssetsPath() {
+  const assetsDir = path.join(__dirname, 'assets')
+  if (!fs.existsSync(assetsDir)) {
+    fs.mkdirSync(assetsDir)
+  }
+  return assetsDir
+}
+
+// Function to save image file
+function saveImageFile(base64Data, filename) {
+  const assetsDir = getAssetsPath()
+  const filePath = path.join(assetsDir, filename)
+  
+  // Remove the data URL prefix (e.g., "data:image/png;base64,")
+  const base64Image = base64Data.split(';base64,').pop()
+  
+  try {
+    fs.writeFileSync(filePath, base64Image, { encoding: 'base64' })
+    return true
+  } catch (error) {
+    console.error('Error saving image:', error)
+    return false
+  }
+}
+
 // Register IPC handlers
 ipcMain.handle('load-combos', async () => {
   try {
@@ -130,6 +156,13 @@ ipcMain.handle('save-combo', async (event, combo) => {
   try {
     console.log('Saving new combo:', combo);
     const combos = readCombos()
+    
+    // Store base64 image directly in combo data
+    if (combo.image) {
+      // No need to process the image, just store it as is
+      combo.image = combo.image;
+    }
+    
     combos.push(combo)
     saveCombos(combos)
     return { success: true, message: 'Combo saved successfully' }

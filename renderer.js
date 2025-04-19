@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateComboTable(combos) {
         console.log('Updating combo table with:', combos);
         if (!combos || combos.length === 0) {
-            comboTableBody.innerHTML = '<tr><td colspan="4">No combos available</td></tr>';
+            comboTableBody.innerHTML = '<tr><td colspan="5">No combos available</td></tr>';
             return;
         }
         comboTableBody.innerHTML = combos.map(combo => `
@@ -119,6 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="combo-keys">
                         ${combo.keys.map(key => `<span class="key-item">${key}</span>`).join('')}
                     </div>
+                </td>
+                <td>
+                    ${combo.image ? 
+                        `<img src="${combo.image}" alt="${combo.name}" style="max-width: 50px; max-height: 50px;">` : 
+                        'No image'}
                 </td>
                 <td>
                     <button class="delete-btn" data-combo='${JSON.stringify(combo)}'>Delete</button>
@@ -188,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addButton.addEventListener('click', async () => {
         const title = titleSelect.value;
         const nama = namaInput.value.trim();
+        const comboImage = document.getElementById('comboImage').files[0];
         
         if (!nama) {
             alert('Please enter a combo name first!');
@@ -222,11 +228,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Validate image if uploaded
+        let imageData = null;
+        if (comboImage) {
+            if (comboImage.size > 2 * 1024 * 1024) { // 2MB limit
+                alert('Image size must be less than 2MB!');
+                return;
+            }
+            // Convert image to base64
+            imageData = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(comboImage);
+            });
+        }
+
         // Prepare the combo data
         const comboData = {
             name: nama,
             title: title === '0' ? otherNameInput.value.trim() : title,
-            keys: [...recordedKeys]
+            keys: [...recordedKeys],
+            image: imageData // Add image data to combo
         };
 
         // If this is a custom timer, save it to timerCooldown.js first

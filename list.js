@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to start timer for a combo
-    function startTimer(comboName, config) {
+    function startTimer(title, config) {
         // Convert title to id format for consistency
         const titleId = config.id;
 
@@ -51,32 +51,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (timers[titleId].cooldown.seconds > 0) {
                 timers[titleId].cooldown.seconds--;
                 // Update all combos with this title
-                const combos = window.electronAPI.getCurrentCombos();
-                combos.forEach(combo => {
-                    const comboConfig = window.electronAPI.getTimerConfig(combo.title);
-                    if (comboConfig && comboConfig.id === titleId) {
-                        const cooldownElement = document.getElementById(`cooldown-${combo.name}`);
-                        if (cooldownElement) {
-                            cooldownElement.textContent = formatTime(timers[titleId].cooldown.seconds);
-                        }
-                    }
-                });
+                const cooldownElement = document.getElementById(`cooldown-${title}`);
+                if (cooldownElement) {
+                    cooldownElement.textContent = formatTime(timers[titleId].cooldown.seconds);
+                }
             }
 
             // Update buff timer if exists
             if (timers[titleId].buff && timers[titleId].buff.seconds > 0) {
                 timers[titleId].buff.seconds--;
                 // Update all combos with this title
-                const combos = window.electronAPI.getCurrentCombos();
-                combos.forEach(combo => {
-                    const comboConfig = window.electronAPI.getTimerConfig(combo.title);
-                    if (comboConfig && comboConfig.id === titleId) {
-                        const buffElement = document.getElementById(`buff-${combo.name}`);
-                        if (buffElement) {
-                            buffElement.textContent = formatTime(timers[titleId].buff.seconds, true);
-                        }
-                    }
-                });
+                const buffElement = document.getElementById(`buff-${title}`);
+                if (buffElement) {
+                    buffElement.textContent = formatTime(timers[titleId].buff.seconds, true);
+                }
             }
         }, 1000);
 
@@ -133,8 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!currentComboKeys.includes(key)) {
             currentComboKeys.push(key);
         }
-        console.log(currentComboKeys);
-
 
         // Immediately check for matching combos
         const combos = window.electronAPI.getCurrentCombos();
@@ -147,13 +133,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (matchingCombos.length > 0) {
-            // Start timers for all matching combos
-            matchingCombos.forEach(combo => {
-                const config = window.electronAPI.getTimerConfig(combo.title);
+            // Get unique titles from matching combos
+            const uniqueTitles = [...new Set(matchingCombos.map(combo => combo.title))];
+            
+            // Start timers for each unique title
+            uniqueTitles.forEach(title => {
+                const config = window.electronAPI.getTimerConfig(title);
                 if (config) {
-                    startTimer(combo.name, config);
+                    startTimer(title, config);
                 }
             });
+            
             // Reset current combo after matching
             currentComboKeys = [];
         } else {
@@ -179,26 +169,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            comboList.innerHTML = combos.map(combo => {
-                const config = window.electronAPI.getTimerConfig(combo.title);
+            // Group combos by title
+            const groupedCombos = combos.reduce((acc, combo) => {
+                if (!acc[combo.title]) {
+                    acc[combo.title] = [];
+                }
+                acc[combo.title].push(combo);
+                return acc;
+            }, {});
+
+            // Create HTML for each title group
+            comboList.innerHTML = Object.entries(groupedCombos).map(([title, titleCombos]) => {
+                const config = window.electronAPI.getTimerConfig(title);
                 const hasBuff = config && config.timerBuff;
+                const comboKeys = titleCombos.map(combo => combo.keys).flat();
 
                 return `
                     <div class="combo-item">
                         <div class="combo-header">
-                            <div class="combo-name">${combo.name}</div>
+                            <div class="combo-name">${title}</div>
                             <div class="timers">
                                 <div class="timer-container">
                                     <div class="timer-label">Cooldown</div>
-                                    <div class="timer cooldown" id="cooldown-${combo.name}">ready</div>
+                                    <div class="timer cooldown" id="cooldown-${title}">ready</div>
                                 </div>
                                 ${hasBuff ? `
                                     <div class="timer-container">
                                         <div class="timer-label">Buff</div>
-                                        <div class="timer buff" id="buff-${combo.name}">not ready</div>
+                                        <div class="timer buff" id="buff-${title}">not ready</div>
                                     </div>
                                 ` : ''}
                             </div>
+                        </div>
+                        <div class="combo-keys">
+                            ${comboKeys.map(key => `<span class="key-item">${key}</span>`).join('')}
                         </div>
                     </div>
                 `;
